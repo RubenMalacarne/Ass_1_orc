@@ -11,14 +11,14 @@ import numpy as np
 import pinocchio as pin
 from example_robot_data.robots_loader import getModelPath
 from pinocchio.visualize import MeshcatVisualizer
-
+from pprint import pprint
 np.set_printoptions(precision=3, linewidth=200, suppress=True)
 LINE_WIDTH = 60
 
 ### TODO ###
 ### First set of trajectories (step length = 0.15): "romeo_walking_traj015.npz" ###
 ### Second set of trajectories (step length = 0.30): "romeo_walking_traj030.npz" ###
-DATA_FILE_TSID = "romeo_walking_traj015.npz"
+# DATA_FILE_TSID = "romeo_walking_traj030.npz"
 
 DATA_FILE_LIPM = "romeo_walking_traj_lipm.npz"
 
@@ -71,73 +71,6 @@ dt = 0.002  # controller time step
 T_pre = 1.5  # simulation time before starting to walk
 T_post = 1.5  # simulation time after walking
 
-# ## TODO ### 11111111111111111111111111111111111111
-# # w_com = 1.0  # weight of center of mass task
-# # w_cop = 0.0  # weight of center of pressure task
-# # w_am = 1e-6  # weight of angular momentum task
-# # w_foot = 1e0  # weight of the foot motion task
-# # w_contact = 1e2  # weight of the foot in contact
-# # w_posture = 1e-2  # weight of joint posture task
-# # w_forceRef = 1e-5  # weight of force regularization task
-# # w_torque_bounds = 1.0  # weight of the torque bounds
-# # w_joint_bounds = 1.0
-
-# # tau_max_scaling = 1.45  # scaling factor of torque bounds
-# # v_max_scaling = 0.8
-
-# # kp_contact = 10.0  # proportional gain of contact constraint
-# # kp_foot = 10.0  # proportional gain of contact constraint
-# # kp_com = 10.0  # proportional gain of center of mass task
-# # kp_am = 10.0  # proportional gain of angular momentum task
-# # kp_posture = 1.0  # proportional gain of joint posture task
-# # gain_vector = kp_posture * np.ones(nv - 6)
-# # masks_posture = np.ones(nv - 6)
-
-
-# # ### TODO ### 222222222222222222222222222222
-# # w_com = 17.0  # weight of center of mass task
-# # w_cop = 0  # weight of center of pressure task
-# # w_am = 1e-4 # weight of angular momentum task
-# # w_foot = 1e0  # weight of the foot motion task
-# # w_contact = 1e2  # weight of the foot in contact
-# # w_posture = 1e-1  # weight of joint posture task
-# # w_forceRef = 1e-7  # weight of force regularization task
-# # w_torque_bounds = -1.0  # weight of the torque bounds
-# # w_joint_bounds = 1.0
-
-# # tau_max_scaling = 1.45  # scaling factor of torque bounds
-# # v_max_scaling = 0.8
-
-# # kp_contact = 10.0  # proportional gain of contact constraint
-# # kp_foot = 10.0  # proportional gain of contact constraint
-# # kp_com = 100.0  # proportional gain of center of mass task
-# # kp_am = 10.0  # proportional gain of angular momentum task
-# # kp_posture = -1.0  # proportional gain of joint posture task
-# # gain_vector = kp_posture * np.ones(nv - 6)
-# # masks_posture = np.ones(nv - 6)
-
-# # ### TODO ### 2222222222222222222222222222222 meglio-->SIIII
-# w_com = 1.0  # weight of center of mass task
-# w_cop = 0.0  # weight of center of pressure task
-# w_am = 1e-4  # weight of angular momentum task
-# w_foot = 1e0  # weight of the foot motion task
-# w_contact = 1e2  # weight of the foot in contact
-# w_posture = 1e-3  # weight of joint posture task
-# w_forceRef = 1e-4  # weight of force regularization task
-# w_torque_bounds = 1.0  # weight of the torque bounds
-# w_joint_bounds = 1.0
-
-# tau_max_scaling = 1.45  # scaling factor of torque bounds
-# v_max_scaling = 0.8
-
-# kp_contact = 10.0  # proportional gain of contact constraint
-# kp_foot = 10.0  # proportional gain of contact constraint
-# kp_com = 10.0  # proportional gain of center of mass task
-# kp_am = 50.0  # proportional gain of angular momentum task
-# kp_posture = 1.0  # proportional gain of joint posture task
-# gain_vector = kp_posture * np.ones(nv - 6)
-# masks_posture = np.ones(nv - 6)
-# Definiamo una funzione per selezionare i pesi e i guadagni proporzionali in base a un'opzione
 def select_weights_and_gains(option):
     if option == 1:
         # Configurazione 1
@@ -171,7 +104,9 @@ def select_weights_and_gains(option):
         kp_com = 100.0
         kp_am = 10.0
         kp_posture = -1.0
+        
     elif option == 3:
+        # best configuration for second point
         # Configurazione 3 (Selezionata come migliore)
         w_com = 1.0
         w_cop = 0.0
@@ -212,11 +147,39 @@ def select_weights_and_gains(option):
         "masks_posture": masks_posture
     }
 
+def select_step_walk(val):
+    if (val == 15):
+        DATA_FILE_TSID = "romeo_walking_traj015.npz"
+    elif(val == 30):
+        DATA_FILE_TSID = "romeo_walking_traj030.npz"
+    else:
+        raise ValueError("Not valid option! choice between 15 or 30")
+    return DATA_FILE_TSID
 
+try:
+    val = int(input("select step of walk (15 or 30): "))
+except ValueError:
+    print("Input non valido, verrà usato il valore di default.")
+    option = 1  # Imposta un valore di default in caso di errore
+    val = 15
 
-# Esempio di selezione dell'opzione
-config = select_weights_and_gains(3)  # Seleziona la configurazione 3 come migliore
+try:
+    option = int(input("Inserisci il valore desiderato per selezionare i pesi e i guadagni (es. 1, 2 o 3): "))
+except ValueError:
+    print("Input non valido, verrà usato il valore di default.")
+    option = 1  # Imposta un valore di default in caso di errore
 
+config = select_weights_and_gains(option)
+walk_step = select_step_walk(val)
+
+# print("setting value:")
+# pprint(config)
+print("setting value:")
+for key, value in config.items():
+    print(f"{key}: {value}")
+    
+    
+DATA_FILE_TSID = walk_step
 # Utilizza i valori di configurazione selezionati nel resto del programma
 w_com = config["w_com"]
 w_cop = config["w_cop"]
@@ -239,6 +202,7 @@ gain_vector = kp_posture * np.ones(nv - 6)
 masks_posture = np.ones(nv - 6)
 tau_max_scaling = 1.45  # scaling factor of torque bounds
 v_max_scaling = 0.8
+
 
 # configuration for viewer
 # ----------------------------------------------
