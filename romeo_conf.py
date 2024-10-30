@@ -9,9 +9,8 @@ import os
 
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer
-
 from example_robot_data.robots_loader import getModelPath
+from pinocchio.visualize import MeshcatVisualizer
 
 np.set_printoptions(precision=3, linewidth=200, suppress=True)
 LINE_WIDTH = 60
@@ -19,7 +18,7 @@ LINE_WIDTH = 60
 ### TODO ###
 ### First set of trajectories (step length = 0.15): "romeo_walking_traj015.npz" ###
 ### Second set of trajectories (step length = 0.30): "romeo_walking_traj030.npz" ###
-DATA_FILE_TSID = "romeo_walking_traj030.npz"
+DATA_FILE_TSID = "romeo_walking_traj015.npz"
 
 DATA_FILE_LIPM = "romeo_walking_traj_lipm.npz"
 
@@ -36,9 +35,6 @@ path = os.path.join(path, '../..')
 # urdf = path + "/urdf/romeo.urdf"
 # srdf = path + "/srdf/romeo_collision.srdf"
 
-# physical control
-rf_frame_name = "RAnkleRoll"  # right foot frame name
-lf_frame_name = "LAnkleRoll"  # left foot frame name
 nv = 37
 foot_scaling = 1.0
 lxp = foot_scaling * 0.10  # foot length in positive x direction
@@ -47,11 +43,10 @@ lyp = foot_scaling * 0.05  # foot length in positive y direction
 lyn = foot_scaling * 0.05  # foot length in negative y direction
 lz = 0.07  # foot sole height with respect to ankle joint
 mu = 0.7  # friction coefficient
-
 fMin = 0.0  # minimum normal force
 fMax = 1e6  # maximum normal force
-
-
+rf_frame_name = "RAnkleRoll"  # right foot frame name
+lf_frame_name = "LAnkleRoll"  # left foot frame name
 contactNormal = np.matrix(
     [0.0, 0.0, 1.0]
 ).T  # direction of the normal to the contact surface
@@ -61,7 +56,6 @@ contactNormal = np.matrix(
 wu = 1e1    # CoP error squared cost weight
 wc = 0      # CoM position error squared cost weight
 wdc = 1e-1  # CoM velocity error squared cost weight
-
 h = 0.58    # fixed CoM height
 g = 9.81    # norm of the gravity vector
 foot_step_0 = np.array([0.0, -0.096])  # initial foot step position in x-y
@@ -69,7 +63,6 @@ dt_mpc = 0.1  # sampling time interval
 T_step = 1.2  # time needed for every step
 step_length = 0.15  # fixed step length
 step_height = 0.05  # fixed step height
-
 nb_steps = 6  # number of desired walking steps
 
 # configuration for TSID
@@ -78,17 +71,61 @@ dt = 0.002  # controller time step
 T_pre = 1.5  # simulation time before starting to walk
 T_post = 1.5  # simulation time after walking
 
-### TODO ###
-w_com = 10e3  # weight of center of mass task
-w_cop = 1e-1  # weight of center of pressure task - sono speculari
-w_am = 10e0  # weight of angular momentum task
-w_foot = 10e10  # weight of the foot motion task
-w_contact = 10e1  # weight of the foot in contact
-w_posture = 10e3  # weight of joint posture task (non va settata)
-w_forceRef = 1e-1  # weight of force regularization task
+## TODO ### 11111111111111111111111111111111111111
+# w_com = 1.0  # weight of center of mass task
+# w_cop = 0.0  # weight of center of pressure task
+# w_am = 1e-6  # weight of angular momentum task
+# w_foot = 1e0  # weight of the foot motion task
+# w_contact = 1e2  # weight of the foot in contact
+# w_posture = 1e-2  # weight of joint posture task
+# w_forceRef = 1e-5  # weight of force regularization task
+# w_torque_bounds = 1.0  # weight of the torque bounds
+# w_joint_bounds = 1.0
 
-w_torque_bounds = -1.0  # weight of the torque bounds
-w_joint_bounds = -1.0
+# tau_max_scaling = 1.45  # scaling factor of torque bounds
+# v_max_scaling = 0.8
+
+# kp_contact = 10.0  # proportional gain of contact constraint
+# kp_foot = 10.0  # proportional gain of contact constraint
+# kp_com = 10.0  # proportional gain of center of mass task
+# kp_am = 10.0  # proportional gain of angular momentum task
+# kp_posture = 1.0  # proportional gain of joint posture task
+# gain_vector = kp_posture * np.ones(nv - 6)
+# masks_posture = np.ones(nv - 6)
+
+
+# ### TODO ### 222222222222222222222222222222
+# w_com = 17.0  # weight of center of mass task
+# w_cop = 0  # weight of center of pressure task
+# w_am = 1e-4 # weight of angular momentum task
+# w_foot = 1e0  # weight of the foot motion task
+# w_contact = 1e2  # weight of the foot in contact
+# w_posture = 1e-1  # weight of joint posture task
+# w_forceRef = 1e-7  # weight of force regularization task
+# w_torque_bounds = -1.0  # weight of the torque bounds
+# w_joint_bounds = 1.0
+
+# tau_max_scaling = 1.45  # scaling factor of torque bounds
+# v_max_scaling = 0.8
+
+# kp_contact = 10.0  # proportional gain of contact constraint
+# kp_foot = 10.0  # proportional gain of contact constraint
+# kp_com = 100.0  # proportional gain of center of mass task
+# kp_am = 10.0  # proportional gain of angular momentum task
+# kp_posture = -1.0  # proportional gain of joint posture task
+# gain_vector = kp_posture * np.ones(nv - 6)
+# masks_posture = np.ones(nv - 6)
+
+# ### TODO ### 2222222222222222222222222222222 meglio-->SIIII
+w_com = 1.0  # weight of center of mass task
+w_cop = 0.0  # weight of center of pressure task
+w_am = 1e-4  # weight of angular momentum task
+w_foot = 1e0  # weight of the foot motion task
+w_contact = 1e2  # weight of the foot in contact
+w_posture = 1e-3  # weight of joint posture task
+w_forceRef = 1e-4  # weight of force regularization task
+w_torque_bounds = 1.0  # weight of the torque bounds
+w_joint_bounds = 1.0
 
 tau_max_scaling = 1.45  # scaling factor of torque bounds
 v_max_scaling = 0.8
@@ -96,11 +133,10 @@ v_max_scaling = 0.8
 kp_contact = 10.0  # proportional gain of contact constraint
 kp_foot = 10.0  # proportional gain of contact constraint
 kp_com = 10.0  # proportional gain of center of mass task
-kp_am = 10.0  # proportional gain of angular momentum task
+kp_am = 50.0  # proportional gain of angular momentum task
 kp_posture = 1.0  # proportional gain of joint posture task
 gain_vector = kp_posture * np.ones(nv - 6)
 masks_posture = np.ones(nv - 6)
-
 
 # configuration for viewer
 # ----------------------------------------------
