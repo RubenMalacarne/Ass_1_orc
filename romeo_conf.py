@@ -71,14 +71,59 @@ dt = 0.002  # controller time step
 T_pre = 1.5  # simulation time before starting to walk
 T_post = 1.5  # simulation time after walking
 
-## TODO ### 11111111111111111111111111111111111111
+# ## TODO ### 11111111111111111111111111111111111111
+# # w_com = 1.0  # weight of center of mass task
+# # w_cop = 0.0  # weight of center of pressure task
+# # w_am = 1e-6  # weight of angular momentum task
+# # w_foot = 1e0  # weight of the foot motion task
+# # w_contact = 1e2  # weight of the foot in contact
+# # w_posture = 1e-2  # weight of joint posture task
+# # w_forceRef = 1e-5  # weight of force regularization task
+# # w_torque_bounds = 1.0  # weight of the torque bounds
+# # w_joint_bounds = 1.0
+
+# # tau_max_scaling = 1.45  # scaling factor of torque bounds
+# # v_max_scaling = 0.8
+
+# # kp_contact = 10.0  # proportional gain of contact constraint
+# # kp_foot = 10.0  # proportional gain of contact constraint
+# # kp_com = 10.0  # proportional gain of center of mass task
+# # kp_am = 10.0  # proportional gain of angular momentum task
+# # kp_posture = 1.0  # proportional gain of joint posture task
+# # gain_vector = kp_posture * np.ones(nv - 6)
+# # masks_posture = np.ones(nv - 6)
+
+
+# # ### TODO ### 222222222222222222222222222222
+# # w_com = 17.0  # weight of center of mass task
+# # w_cop = 0  # weight of center of pressure task
+# # w_am = 1e-4 # weight of angular momentum task
+# # w_foot = 1e0  # weight of the foot motion task
+# # w_contact = 1e2  # weight of the foot in contact
+# # w_posture = 1e-1  # weight of joint posture task
+# # w_forceRef = 1e-7  # weight of force regularization task
+# # w_torque_bounds = -1.0  # weight of the torque bounds
+# # w_joint_bounds = 1.0
+
+# # tau_max_scaling = 1.45  # scaling factor of torque bounds
+# # v_max_scaling = 0.8
+
+# # kp_contact = 10.0  # proportional gain of contact constraint
+# # kp_foot = 10.0  # proportional gain of contact constraint
+# # kp_com = 100.0  # proportional gain of center of mass task
+# # kp_am = 10.0  # proportional gain of angular momentum task
+# # kp_posture = -1.0  # proportional gain of joint posture task
+# # gain_vector = kp_posture * np.ones(nv - 6)
+# # masks_posture = np.ones(nv - 6)
+
+# # ### TODO ### 2222222222222222222222222222222 meglio-->SIIII
 # w_com = 1.0  # weight of center of mass task
 # w_cop = 0.0  # weight of center of pressure task
-# w_am = 1e-6  # weight of angular momentum task
+# w_am = 1e-4  # weight of angular momentum task
 # w_foot = 1e0  # weight of the foot motion task
 # w_contact = 1e2  # weight of the foot in contact
-# w_posture = 1e-2  # weight of joint posture task
-# w_forceRef = 1e-5  # weight of force regularization task
+# w_posture = 1e-3  # weight of joint posture task
+# w_forceRef = 1e-4  # weight of force regularization task
 # w_torque_bounds = 1.0  # weight of the torque bounds
 # w_joint_bounds = 1.0
 
@@ -88,55 +133,112 @@ T_post = 1.5  # simulation time after walking
 # kp_contact = 10.0  # proportional gain of contact constraint
 # kp_foot = 10.0  # proportional gain of contact constraint
 # kp_com = 10.0  # proportional gain of center of mass task
-# kp_am = 10.0  # proportional gain of angular momentum task
+# kp_am = 50.0  # proportional gain of angular momentum task
 # kp_posture = 1.0  # proportional gain of joint posture task
 # gain_vector = kp_posture * np.ones(nv - 6)
 # masks_posture = np.ones(nv - 6)
+# Definiamo una funzione per selezionare i pesi e i guadagni proporzionali in base a un'opzione
+def select_weights_and_gains(option):
+    if option == 1:
+        # Configurazione 1
+        w_com = 1.0
+        w_cop = 0.0
+        w_am = 1e-6
+        w_foot = 1e0
+        w_contact = 1e2
+        w_posture = 1e-2
+        w_forceRef = 1e-5
+        w_torque_bounds = 1.0
+        w_joint_bounds = 1.0
+        kp_contact = 10.0
+        kp_foot = 10.0
+        kp_com = 10.0
+        kp_am = 10.0
+        kp_posture = 1.0
+    elif option == 2:
+        # Configurazione 2
+        w_com = 17.0
+        w_cop = 0.0
+        w_am = 1e-4
+        w_foot = 1e0
+        w_contact = 1e2
+        w_posture = 1e-1
+        w_forceRef = 1e-7
+        w_torque_bounds = -1.0
+        w_joint_bounds = 1.0
+        kp_contact = 10.0
+        kp_foot = 10.0
+        kp_com = 100.0
+        kp_am = 10.0
+        kp_posture = -1.0
+    elif option == 3:
+        # Configurazione 3 (Selezionata come migliore)
+        w_com = 1.0
+        w_cop = 0.0
+        w_am = 1e-4
+        w_foot = 1e0
+        w_contact = 1e2
+        w_posture = 1e-3
+        w_forceRef = 1e-4       #forza che al piede sul suolo
+        w_torque_bounds = 1.0
+        w_joint_bounds = 1.0
+        kp_contact = 10.0
+        kp_foot = 10.0
+        kp_com = 10.0
+        kp_am = 50.0
+        kp_posture = 1.0
+    else:
+        raise ValueError("Opzione non valida! Scegliere tra 1, 2 o 3.")
+
+    gain_vector = kp_posture * np.ones(nv - 6)
+    masks_posture = np.ones(nv - 6)
+    
+    return {
+        "w_com": w_com,
+        "w_cop": w_cop,
+        "w_am": w_am,
+        "w_foot": w_foot,
+        "w_contact": w_contact,
+        "w_posture": w_posture,
+        "w_forceRef": w_forceRef,
+        "w_torque_bounds": w_torque_bounds,
+        "w_joint_bounds": w_joint_bounds,
+        "kp_contact": kp_contact,
+        "kp_foot": kp_foot,
+        "kp_com": kp_com,
+        "kp_am": kp_am,
+        "kp_posture": kp_posture,
+        "gain_vector": gain_vector,
+        "masks_posture": masks_posture
+    }
 
 
-# ### TODO ### 222222222222222222222222222222
-# w_com = 17.0  # weight of center of mass task
-# w_cop = 0  # weight of center of pressure task
-# w_am = 1e-4 # weight of angular momentum task
-# w_foot = 1e0  # weight of the foot motion task
-# w_contact = 1e2  # weight of the foot in contact
-# w_posture = 1e-1  # weight of joint posture task
-# w_forceRef = 1e-7  # weight of force regularization task
-# w_torque_bounds = -1.0  # weight of the torque bounds
-# w_joint_bounds = 1.0
 
-# tau_max_scaling = 1.45  # scaling factor of torque bounds
-# v_max_scaling = 0.8
+# Esempio di selezione dell'opzione
+config = select_weights_and_gains(3)  # Seleziona la configurazione 3 come migliore
 
-# kp_contact = 10.0  # proportional gain of contact constraint
-# kp_foot = 10.0  # proportional gain of contact constraint
-# kp_com = 100.0  # proportional gain of center of mass task
-# kp_am = 10.0  # proportional gain of angular momentum task
-# kp_posture = -1.0  # proportional gain of joint posture task
-# gain_vector = kp_posture * np.ones(nv - 6)
-# masks_posture = np.ones(nv - 6)
+# Utilizza i valori di configurazione selezionati nel resto del programma
+w_com = config["w_com"]
+w_cop = config["w_cop"]
+w_am = config["w_am"]
+w_foot = config["w_foot"]
+w_contact = config["w_contact"]
+w_posture = config["w_posture"]
+w_forceRef = config["w_forceRef"]
+w_torque_bounds = config["w_torque_bounds"]
+w_joint_bounds = config["w_joint_bounds"]
+kp_contact = config["kp_contact"]
+kp_foot = config["kp_foot"]
+kp_com = config["kp_com"]
+kp_am = config["kp_am"]
+kp_posture = config["kp_posture"]
+gain_vector = config["gain_vector"]
+masks_posture = config["masks_posture"]
 
-# ### TODO ### 2222222222222222222222222222222 meglio-->SIIII
-w_com = 1.0  # weight of center of mass task
-w_cop = 0.0  # weight of center of pressure task
-w_am = 1e-4  # weight of angular momentum task
-w_foot = 1e0  # weight of the foot motion task
-w_contact = 1e2  # weight of the foot in contact
-w_posture = 1e-3  # weight of joint posture task
-w_forceRef = 1e-4  # weight of force regularization task
-w_torque_bounds = 1.0  # weight of the torque bounds
-w_joint_bounds = 1.0
-
-tau_max_scaling = 1.45  # scaling factor of torque bounds
-v_max_scaling = 0.8
-
-kp_contact = 10.0  # proportional gain of contact constraint
-kp_foot = 10.0  # proportional gain of contact constraint
-kp_com = 10.0  # proportional gain of center of mass task
-kp_am = 50.0  # proportional gain of angular momentum task
-kp_posture = 1.0  # proportional gain of joint posture task
 gain_vector = kp_posture * np.ones(nv - 6)
 masks_posture = np.ones(nv - 6)
+tau_max_scaling = 1.45  # scaling factor of torque bounds
+v_max_scaling = 0.8
 
 # configuration for viewer
 # ----------------------------------------------
