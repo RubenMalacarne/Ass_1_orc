@@ -71,170 +71,68 @@ dt = 0.002  # controller time step
 T_pre = 1.5  # simulation time before starting to walk
 T_post = 1.5  # simulation time after walking
 
-## CONFIGURATION TESTED #########################################################################
-def select_weights_and_gains(option):
-    if option == 0:
-        # Configuration 0: Standard configuraiton 
-        w_com = 1.0  # weight of center of mass task
-        w_cop = 0.0  # weight of center of pressure task
-        w_am = 1e-6  # weight of angular momentum task
-        w_foot = 1e0  # weight of the foot motion task
-        w_contact = 1e2  # weight of the foot in contact
-        w_posture = 0  # weight of joint posture task
-        w_forceRef = 1e-5  # weight of force regularization task
-        w_torque_bounds = 1.0  # weight of the torque bounds
-        w_joint_bounds = 1.0
-        
-        kp_contact = 10.0  # proportional gain of contact constraint
-        kp_foot = 10.0  # proportional gain of contact constraint
-        kp_com = 10.0  # proportional gain of center of mass task
-        kp_am = 10.0  # proportional gain of angular momentum task
-        kp_posture = 1.0  # proportional gain of joint posture task
-        
-    elif option == 1:
-        # Configuration 1: First solution for 15 but not optimal
-        w_com = 1.0  # weight of center of mass task
-        w_cop = 0.0  # weight of center of pressure task
-        w_am = 1e-6  # weight of angular momentum task
-        w_foot = 1e0  # weight of the foot motion task
-        w_contact = 1e2  # weight of the foot in contact
-        w_posture = 1e-1  # weight of joint posture task
-        w_forceRef = 1e-5  # weight of force regularization task
-        w_torque_bounds = 1.0  # weight of the torque bounds
-        w_joint_bounds = 1.0
-        
-        kp_contact = 10.0  # proportional gain of contact constraint
-        kp_foot = 10.0  # proportional gain of contact constraint
-        kp_com = 10.0  # proportional gain of center of mass task
-        kp_am = 10.0  # proportional gain of angular momentum task
-        kp_posture = 1.0  # proportional gain of joint posture task
-        
-    elif option == 2:
-        # Configuration 1: First solution optimal
-        w_com = 1.0  # weight of center of mass task
-        w_cop = 0.0  # weight of center of pressure task
-        w_am = 1e-6  # weight of angular momentum task
-        w_foot = 1e0  # weight of the foot motion task
-        w_contact = 1e2  # weight of the foot in contact
-        w_posture = 1e-2  # weight of joint posture task
-        w_forceRef = 1e-5  # weight of force regularization task
-        w_torque_bounds = 1.0  # weight of the torque bounds
-        w_joint_bounds = 1.0
-        
-        kp_contact = 10.0  # proportional gain of contact constraint
-        kp_foot = 10.0  # proportional gain of contact constraint
-        kp_com = 10.0  # proportional gain of center of mass task
-        kp_am = 10.0  # proportional gain of angular momentum task
-        kp_posture = 1.0  # proportional gain of joint posture task
 
-    elif option == 3:
-       # Configuration 2: first solution but not optimal for 30
-        w_com = 10.0 
-        w_cop = 0.0
-        w_am = 1e-4
-        w_foot = 1e0
-        w_contact = 1e2
-        w_posture = 1e-1
-        w_forceRef = 1e-5
-        w_torque_bounds = -1.0
-        w_joint_bounds = 1.0
-        kp_contact = 10.0
-        kp_foot = 10.0
-        kp_com = 100.0
-        kp_am = 10.0
-        kp_posture = -1.0
-        
-    elif option == 4:
-        # Configuration 3: Second solution and best solution for 30 e 15
-        w_com = 1.0
-        w_cop = 0.0
-        w_am = 1e-4
-        w_foot = 1e0
-        w_contact = 1e2
-        w_posture = 1e-3
-        w_forceRef = 1e-4       #forza che al piede sul suolo
-        w_torque_bounds = 1.0
-        w_joint_bounds = 1.0
-        kp_contact = 10.0
-        kp_foot = 10.0
-        kp_com = 10.0
-        kp_am = 50.0
-        kp_posture = 1.0
-    else:
-        raise ValueError("Opzione non valida! Scegliere tra 0, 1, 2, 3 or 4")
-
-    gain_vector = kp_posture * np.ones(nv - 6)
-    masks_posture = np.ones(nv - 6)
-    
-    return {
-        "w_com": w_com,
-        "w_cop": w_cop,
-        "w_am": w_am,
-        "w_foot": w_foot,
-        "w_contact": w_contact,
-        "w_posture": w_posture,
-        "w_forceRef": w_forceRef,
-        "w_torque_bounds": w_torque_bounds,
-        "w_joint_bounds": w_joint_bounds,
-        "kp_contact": kp_contact,
-        "kp_foot": kp_foot,
-        "kp_com": kp_com,
-        "kp_am": kp_am,
-        "kp_posture": kp_posture,
-        "gain_vector": gain_vector,
-        "masks_posture": masks_posture
-    }
-
-def select_step_walk(val):
-    if (val == 15):
-        DATA_FILE_TSID = "romeo_walking_traj015.npz"
-    elif(val == 30):
-        DATA_FILE_TSID = "romeo_walking_traj030.npz"
-    else:
-        raise ValueError("Not valid option! choice between 15 or 30")
-    return DATA_FILE_TSID
-
-try:
-    val = int(input("select step of walk (15 or 30): "))
-except ValueError:
-    print("not valid option! choice, Using default value --> step walk 15.")
-    val = 15
-    
-try:
-    option = int(input("Inserisci il valore desiderato per selezionare i pesi e i guadagni (es. 1, 2 o 3): "))
-except ValueError:
-    print("not valid option! choice, Using default value --> configuration 0.")
-    option = 1 
-
-config = select_weights_and_gains(option)
-walk_step = select_step_walk(val)
-
-print("setting value:")
-for key, value in config.items():
-    print(f"{key}: {value}")
-    
-    
-DATA_FILE_TSID = walk_step
-
-w_com = config["w_com"]
-w_cop = config["w_cop"]
-w_am = config["w_am"]
-w_foot = config["w_foot"]
-w_contact = config["w_contact"]
-w_posture = config["w_posture"]
-w_forceRef = config["w_forceRef"]
-w_torque_bounds = config["w_torque_bounds"]
-w_joint_bounds = config["w_joint_bounds"]
-kp_contact = config["kp_contact"]
-kp_foot = config["kp_foot"]
-kp_com = config["kp_com"]
-kp_am = config["kp_am"]
-kp_posture = config["kp_posture"]
-gain_vector = config["gain_vector"]
-masks_posture = config["masks_posture"]
+print("Select step size (0, 1):")
+print(" 0: 15cm")
+print(" 1: 30cm")
+input_data = input()
+if input_data == "0":
+    DATA_FILE_TSID = "Ass_1_orc/romeo_walking_traj015.npz"
+    print("Using step size=15cm")
+elif input_data == "1":
+    DATA_FILE_TSID = "Ass_1_orc/romeo_walking_traj030.npz"
+    print("Using step size=30cm")
+else:
+    print("Insert a valid choice")
+    exit(1)
 
 
-## END CODE ######################################################################### 
+
+w_com = 1.0  # weight of center of mass task
+w_cop = 0.0  # weight of center of pressure task
+w_am = 1e-6  # weight of angular momentum task
+w_foot = 1e0  # weight of the foot motion task
+w_contact = 1e2  # weight of the foot in contact
+w_posture = 0  # weight of joint posture task
+w_forceRef = 1e-5  # weight of force regularization task
+w_torque_bounds = 1.0  # weight of the torque bounds
+w_joint_bounds = 1.0
+
+kp_contact = 10.0  # proportional gain of contact constraint
+kp_foot = 10.0  # proportional gain of contact constraint
+kp_com = 10.0  # proportional gain of center of mass task
+kp_am = 10.0  # proportional gain of angular momentum task
+kp_posture = 1.0  # proportional gain of joint posture task
+
+print("Select weights (0, 1, 2):")
+print(" 0: default weights")
+print(" 1: weight to answer question 1")
+print(" 2: weight to answer question 2")
+input_data = input()
+if input_data == "0":
+    print("Using default weights")
+elif input_data == "1":
+    w_posture = 1e-2  # weight of joint posture task
+    print(f"Using {w_posture=}")
+elif input_data == "2":
+    w_com = 1.0
+    w_cop = 0.0
+    w_am = 1e-4
+    w_foot = 1e0
+    w_contact = 1e2
+    w_posture = 1e-3
+    w_forceRef = 1e-4
+    w_torque_bounds = 1.0
+    w_joint_bounds = 1.0
+    kp_contact = 10.0
+    kp_foot = 10.0
+    kp_com = 10.0
+    kp_am = 50.0
+    kp_posture = 1.0
+else:
+    print("Insert a valid choice")
+    exit(1)
+
 
 gain_vector = kp_posture * np.ones(nv - 6)
 masks_posture = np.ones(nv - 6)

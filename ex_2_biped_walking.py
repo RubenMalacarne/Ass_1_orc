@@ -7,7 +7,6 @@ import plot_utils as plut
 from numpy import nan
 from numpy.linalg import norm as norm
 from tsid_biped import TsidBiped
-from pinocchio.visualize import MeshcatVisualizer
 
 import tsid
 
@@ -217,11 +216,12 @@ while True:
             time.sleep(conf.DISPLAY_N*conf.dt)
     else:
         break
+    
 # PLOT STUFF
 time = np.arange(0.0, (N + N_post) * conf.dt, conf.dt)
 
 if PLOT_COM:
-    (f, ax) = plut.create_empty_figure(3, 1)
+    (f, ax) = plut.create_empty_figure(4, 1)
     for i in range(3):
         ax[i].plot(time, com_pos[i, :], label="CoM " + str(i))
         ax[i].plot(time[:N], com_pos_ref[i, :], "r:", label="CoM Ref " + str(i))
@@ -229,25 +229,43 @@ if PLOT_COM:
         ax[i].set_ylabel("CoM [m]")
         leg = ax[i].legend()
         leg.get_frame().set_alpha(0.5)
+    for i in range(3):
+        ax[3].plot(time[:N], com_pos[i, :N] - com_pos_ref[i, :], label="CoM Error " + str(i))
+    ax[3].set_xlabel("Time [s]")
+    ax[3].set_ylabel("CoM [m]")
+    leg = ax[3].legend()
+    leg.get_frame().set_alpha(0.5)
 
-    (f, ax) = plut.create_empty_figure(3, 1)
+    (f, ax) = plut.create_empty_figure(4, 1)
     for i in range(3):
         ax[i].plot(time, com_vel[i, :], label="CoM Vel " + str(i))
         ax[i].plot(time[:N], com_vel_ref[i, :], "r:", label="CoM Vel Ref " + str(i))
         ax[i].set_xlabel("Time [s]")
-        ax[i].set_ylabel("CoM Vel [m/s]")
+        ax[i].set_ylabel("CoM Vel \n [m/s]")
         leg = ax[i].legend()
         leg.get_frame().set_alpha(0.5)
+    for i in range(3):
+        ax[3].plot(time[:N], com_vel[i, :N] - com_vel_ref[i, :], label="CoM Error " + str(i))
+    ax[3].set_xlabel("Time [s]")
+    ax[3].set_ylabel("CoM Vel \n [m/s]")
+    leg = ax[3].legend()
+    leg.get_frame().set_alpha(0.5)
 
-    (f, ax) = plut.create_empty_figure(3, 1)
+    (f, ax) = plut.create_empty_figure(4, 1)
     for i in range(3):
         ax[i].plot(time, com_acc[i, :], label="CoM Acc " + str(i))
         ax[i].plot(time[:N], com_acc_ref[i, :], "r:", label="CoM Acc Ref " + str(i))
         ax[i].plot(time, com_acc_des[i, :], "g--", label="CoM Acc Des " + str(i))
         ax[i].set_xlabel("Time [s]")
-        ax[i].set_ylabel("CoM Acc [m/s^2]")
+        ax[i].set_ylabel("CoM Acc \n [m/s^2]")
         leg = ax[i].legend()
         leg.get_frame().set_alpha(0.5)
+    for i in range(3):
+        ax[3].plot(time[:N], com_acc[i, :N] - com_acc_ref[i, :], label="CoM Error " + str(i))
+    ax[3].set_xlabel("Time [s]")
+    ax[3].set_ylabel("CoM Acc \n [m/s^2]")
+    leg = ax[3].legend()
+    leg.get_frame().set_alpha(0.5)
 
 if PLOT_COP:
     (f, ax) = plut.create_empty_figure(2, 1)
@@ -367,13 +385,13 @@ if PLOT_JOINT_VEL:
 if PLOT_COP:
     (f, ax) = plut.create_empty_figure(1, 1)  # Grafico unico per visualizzare entrambi i piedi
 
-    # CoP per il piede sinistro (LF - Left Foot)
+    # CoP of Left Foot
     ax.plot(cop_LF[0, :], cop_LF[1, :], label="CoP LF", color="blue")
     ax.plot([-conf.lxn, conf.lxp, conf.lxp, -conf.lxn, -conf.lxn],
             [-conf.lyn, -conf.lyn, conf.lyp, conf.lyp, -conf.lyn],
             ":", color="blue", label="Foot Limits LF")
 
-    # CoP per il piede destro (RF - Right Foot)
+    # CoP of Right Foot
     ax.plot(cop_RF[0, :], cop_RF[1, :], label="CoP RF", color="orange")
     ax.plot([-conf.lxn, conf.lxp, conf.lxp, -conf.lxn, -conf.lxn],
             [-conf.lyn, -conf.lyn, conf.lyp, conf.lyp, -conf.lyn],
@@ -382,7 +400,7 @@ if PLOT_COP:
     ax.set_xlabel("CoP X [m]")
     ax.set_ylabel("CoP Y [m]")
     ax.set_title("Center of Pressure (CoP) for each foot")
-    ax.axis("equal")  # Assicura proporzioni quadrate per i piedi
+    ax.axis("equal")
     leg = ax.legend()
     leg.get_frame().set_alpha(0.5)
 
