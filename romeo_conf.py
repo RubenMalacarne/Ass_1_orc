@@ -71,26 +71,48 @@ dt = 0.002  # controller time step
 T_pre = 1.5  # simulation time before starting to walk
 T_post = 1.5  # simulation time after walking
 
+## CONFIGURATION TESTED #########################################################################
 def select_weights_and_gains(option):
-    if option == 1:
-        # Configurazione 1
-        w_com = 1.0
-        w_cop = 0.0
-        w_am = 1e-6
-        w_foot = 1e0
-        w_contact = 1e2
-        w_posture = 1e-2
-        w_forceRef = 1e-5
-        w_torque_bounds = 1.0
+    if option == 0:
+        # Configuration 0: Standard configuraiton 
+        w_com = 1.0  # weight of center of mass task
+        w_cop = 0.0  # weight of center of pressure task
+        w_am = 1e-6  # weight of angular momentum task
+        w_foot = 1e0  # weight of the foot motion task
+        w_contact = 1e2  # weight of the foot in contact
+        w_posture = 0  # weight of joint posture task
+        w_forceRef = 1e-5  # weight of force regularization task
+        w_torque_bounds = 1.0  # weight of the torque bounds
         w_joint_bounds = 1.0
-        kp_contact = 10.0
-        kp_foot = 10.0
-        kp_com = 10.0
-        kp_am = 10.0
-        kp_posture = 1.0
+        
+        kp_contact = 10.0  # proportional gain of contact constraint
+        kp_foot = 10.0  # proportional gain of contact constraint
+        kp_com = 10.0  # proportional gain of center of mass task
+        kp_am = 10.0  # proportional gain of angular momentum task
+        kp_posture = 1.0  # proportional gain of joint posture task
+        
+    elif option == 1:
+        # Configuration 1: First solution first point
+        w_com = 1.0  # weight of center of mass task
+        w_cop = 0.0  # weight of center of pressure task
+        w_am = 1e-6  # weight of angular momentum task
+        w_foot = 1e0  # weight of the foot motion task
+        w_contact = 1e2  # weight of the foot in contact
+        w_posture = 1e-2  # weight of joint posture task
+        w_forceRef = 1e-5  # weight of force regularization task
+        w_torque_bounds = 1.0  # weight of the torque bounds
+        w_joint_bounds = 1.0
+        
+        kp_contact = 10.0  # proportional gain of contact constraint
+        kp_foot = 10.0  # proportional gain of contact constraint
+        kp_com = 10.0  # proportional gain of center of mass task
+        kp_am = 10.0  # proportional gain of angular momentum task
+        kp_posture = 1.0  # proportional gain of joint posture task
+
     elif option == 2:
-        # Configurazione 2
-        w_com = 17.0
+        # Configuration 2: way ti achive solution second point
+        # Type of the configuration for the second part
+        w_com = 17.0 
         w_cop = 0.0
         w_am = 1e-4
         w_foot = 1e0
@@ -106,8 +128,8 @@ def select_weights_and_gains(option):
         kp_posture = -1.0
         
     elif option == 3:
+        # Configuration 3 (Selezionata come migliore)
         # best configuration for second point
-        # Configurazione 3 (Selezionata come migliore)
         w_com = 1.0
         w_cop = 0.0
         w_am = 1e-4
@@ -159,28 +181,25 @@ def select_step_walk(val):
 try:
     val = int(input("select step of walk (15 or 30): "))
 except ValueError:
-    print("Input non valido, verrà usato il valore di default.")
-    option = 1  # Imposta un valore di default in caso di errore
+    print("not valid option! choice, Using default value --> step walk 15.")
     val = 15
-
+    
 try:
     option = int(input("Inserisci il valore desiderato per selezionare i pesi e i guadagni (es. 1, 2 o 3): "))
 except ValueError:
-    print("Input non valido, verrà usato il valore di default.")
-    option = 1  # Imposta un valore di default in caso di errore
+    print("not valid option! choice, Using default value --> configuration 0.")
+    option = 1 
 
 config = select_weights_and_gains(option)
 walk_step = select_step_walk(val)
 
-# print("setting value:")
-# pprint(config)
 print("setting value:")
 for key, value in config.items():
     print(f"{key}: {value}")
     
     
 DATA_FILE_TSID = walk_step
-# Utilizza i valori di configurazione selezionati nel resto del programma
+
 w_com = config["w_com"]
 w_cop = config["w_cop"]
 w_am = config["w_am"]
@@ -197,6 +216,9 @@ kp_am = config["kp_am"]
 kp_posture = config["kp_posture"]
 gain_vector = config["gain_vector"]
 masks_posture = config["masks_posture"]
+
+
+## END CODE ######################################################################### 
 
 gain_vector = kp_posture * np.ones(nv - 6)
 masks_posture = np.ones(nv - 6)

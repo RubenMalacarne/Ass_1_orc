@@ -10,6 +10,24 @@ from numpy.linalg import norm as norm
 from tsid_biped import TsidBiped
 import time
 
+# SET FREQUENCY BY USER DURING RUN TIME PROCESS
+def set_feqeuncy(val):
+    if (val == 1 or val == 1.0):
+        f = np.array([0.0, 1.0, 0.0])
+    elif(val == 0.5):
+        f = np.array([0.0, 0.5, 0.0])
+    else:
+        raise ValueError("Not valid option! choice between 1 or 0.5")
+    return f
+
+try:
+    freq = int(input("select frequency (0.5 or 1): "))
+except ValueError:
+    print("not valid option! Using default frequenxy --> 0.5.")
+    freq = 0.5
+    
+f = set_feqeuncy(freq)
+
 print("".center(conf.LINE_WIDTH, "#"))
 print(" TSID - Biped Sin Tracking ".center(conf.LINE_WIDTH, "#"))
 print("".center(conf.LINE_WIDTH, "#"), "\n")
@@ -29,7 +47,7 @@ com_acc_des = np.empty((3, N)) * nan  # acc_des = acc_ref - Kp*pos_err - Kd*vel_
 offset = tsid.robot.com(tsid.formulation.data())
 
 amp = np.array([0.0, 0.05, 0.00])
-f = np.array([0.0,   .5, 0.0])
+# f = np.array([0.0,   .5, 0.0]) #see  up
 
 two_pi_f = 2 * np.pi * f
 two_pi_f_amp = two_pi_f * amp
