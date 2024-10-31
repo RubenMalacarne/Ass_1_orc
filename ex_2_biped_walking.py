@@ -364,4 +364,30 @@ if PLOT_JOINT_VEL:
     leg = plt.legend()
 #    leg.get_frame().set_alpha(0.5)
 
+if PLOT_COP:
+    (f, ax) = plut.create_empty_figure(1, 1)  # Grafico unico per visualizzare entrambi i piedi
+
+    # CoP per il piede sinistro (LF - Left Foot)
+    ax.plot(cop_LF[0, :], cop_LF[1, :], label="CoP LF", color="blue")
+    ax.plot([-conf.lxn, conf.lxp, conf.lxp, -conf.lxn, -conf.lxn],
+            [-conf.lyn, -conf.lyn, conf.lyp, conf.lyp, -conf.lyn],
+            ":", color="blue", label="Foot Limits LF")
+
+    # CoP per il piede destro (RF - Right Foot)
+    ax.plot(cop_RF[0, :], cop_RF[1, :], label="CoP RF", color="orange")
+    ax.plot([-conf.lxn, conf.lxp, conf.lxp, -conf.lxn, -conf.lxn],
+            [-conf.lyn, -conf.lyn, conf.lyp, conf.lyp, -conf.lyn],
+            ":", color="green", label="Foot Limits RF")
+
+    ax.set_xlabel("CoP X [m]")
+    ax.set_ylabel("CoP Y [m]")
+    ax.set_title("Center of Pressure (CoP) for each foot")
+    ax.axis("equal")  # Assicura proporzioni quadrate per i piedi
+    leg = ax.legend()
+    leg.get_frame().set_alpha(0.5)
+
+
+
 plt.show()
+
+

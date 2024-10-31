@@ -92,7 +92,25 @@ def select_weights_and_gains(option):
         kp_posture = 1.0  # proportional gain of joint posture task
         
     elif option == 1:
-        # Configuration 1: First solution first point
+        # Configuration 1: First solution for 15 but not optimal
+        w_com = 1.0  # weight of center of mass task
+        w_cop = 0.0  # weight of center of pressure task
+        w_am = 1e-6  # weight of angular momentum task
+        w_foot = 1e0  # weight of the foot motion task
+        w_contact = 1e2  # weight of the foot in contact
+        w_posture = 1e-1  # weight of joint posture task
+        w_forceRef = 1e-5  # weight of force regularization task
+        w_torque_bounds = 1.0  # weight of the torque bounds
+        w_joint_bounds = 1.0
+        
+        kp_contact = 10.0  # proportional gain of contact constraint
+        kp_foot = 10.0  # proportional gain of contact constraint
+        kp_com = 10.0  # proportional gain of center of mass task
+        kp_am = 10.0  # proportional gain of angular momentum task
+        kp_posture = 1.0  # proportional gain of joint posture task
+        
+    elif option == 2:
+        # Configuration 1: First solution optimal
         w_com = 1.0  # weight of center of mass task
         w_cop = 0.0  # weight of center of pressure task
         w_am = 1e-6  # weight of angular momentum task
@@ -109,16 +127,15 @@ def select_weights_and_gains(option):
         kp_am = 10.0  # proportional gain of angular momentum task
         kp_posture = 1.0  # proportional gain of joint posture task
 
-    elif option == 2:
-        # Configuration 2: way ti achive solution second point
-        # Type of the configuration for the second part
-        w_com = 17.0 
+    elif option == 3:
+       # Configuration 2: first solution but not optimal for 30
+        w_com = 10.0 
         w_cop = 0.0
         w_am = 1e-4
         w_foot = 1e0
         w_contact = 1e2
         w_posture = 1e-1
-        w_forceRef = 1e-7
+        w_forceRef = 1e-5
         w_torque_bounds = -1.0
         w_joint_bounds = 1.0
         kp_contact = 10.0
@@ -127,9 +144,8 @@ def select_weights_and_gains(option):
         kp_am = 10.0
         kp_posture = -1.0
         
-    elif option == 3:
-        # Configuration 3 (Selezionata come migliore)
-        # best configuration for second point
+    elif option == 4:
+        # Configuration 3: Second solution and best solution for 30 e 15
         w_com = 1.0
         w_cop = 0.0
         w_am = 1e-4
@@ -145,7 +161,7 @@ def select_weights_and_gains(option):
         kp_am = 50.0
         kp_posture = 1.0
     else:
-        raise ValueError("Opzione non valida! Scegliere tra 1, 2 o 3.")
+        raise ValueError("Opzione non valida! Scegliere tra 0, 1, 2, 3 or 4")
 
     gain_vector = kp_posture * np.ones(nv - 6)
     masks_posture = np.ones(nv - 6)
